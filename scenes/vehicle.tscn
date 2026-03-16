@@ -56,7 +56,7 @@ alpha_curve = SubResource("CurveTexture_mya1o")
 
 [sub_resource type="QuadMesh" id="QuadMesh_68fxn"]
 
-[node name="Sphere" type="RigidBody3D" unique_id=255600256 node_paths=PackedStringArray("vehicle_model", "vehicle_body", "wheel_fl", "wheel_fr", "wheel_bl", "wheel_br", "trail_left", "trail_right", "screech_sound", "engine_sound")]
+[node name="Vehicle" type="RigidBody3D" unique_id=255600256 node_paths=PackedStringArray("vehicle_model", "vehicle_body", "wheel_fl", "wheel_fr", "wheel_bl", "wheel_br", "trail_left", "trail_right", "screech_sound", "engine_sound")]
 collision_layer = 8
 mass = 1000.0
 physics_material_override = SubResource("PhysicsMaterial_eyo0u")
