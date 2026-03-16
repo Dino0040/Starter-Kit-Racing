@@ -1,29 +1,29 @@
-extends Node3D
+@tool
+extends RigidBody3D
 
 # Nodes
 
-@onready var sphere: RigidBody3D = $Sphere
-@onready var raycast: RayCast3D = $Ground
+@onready var sphere = self
 
 # Vehicle elements
 
-@onready var vehicle_model = $Container
-@onready var vehicle_body = $Container/Model/body
+@export var vehicle_model : Node3D
+@export var vehicle_body : Node3D
 
-@onready var wheel_fl = $"Container/Model/wheel-front-left"
-@onready var wheel_fr = $"Container/Model/wheel-front-right"
-@onready var wheel_bl = $"Container/Model/wheel-back-left"
-@onready var wheel_br = $"Container/Model/wheel-back-right"
+@export var wheel_fl : Node3D
+@export var wheel_fr : Node3D
+@export var wheel_bl : Node3D
+@export var wheel_br : Node3D
 
 # Effects
 
-@onready var trail_left: GPUParticles3D = $Container/TrailLeft
-@onready var trail_right: GPUParticles3D = $Container/TrailRight
+@export var trail_left: GPUParticles3D
+@export var trail_right: GPUParticles3D
 
 # Sounds
 
-@onready var screech_sound: AudioStreamPlayer3D = $Container/ScreechSound
-@onready var engine_sound: AudioStreamPlayer3D = $Container/EngineSound
+@export var screech_sound: AudioStreamPlayer3D
+@export var engine_sound: AudioStreamPlayer3D
 
 var input: Vector3
 var normal: Vector3
@@ -36,7 +36,18 @@ var colliding: bool
 
 # Functions
 
+func _ready():
+	vehicle_model.rotation = self.rotation
+
 func _physics_process(delta):
+	# Match vehicle model to physics sphere
+	
+	vehicle_model.position = sphere.position - Vector3(0, 0.65, 0)
+	
+	# Return if in the editor
+	if Engine.is_editor_hint():
+		vehicle_model.rotation = self.rotation
+		return
 	
 	handle_input(delta)
 	
@@ -51,13 +62,14 @@ func _physics_process(delta):
 	vehicle_model.rotate_y(angular_speed * delta)
 
 	# Ground alignment
-	
-	if raycast.is_colliding():
+	var space_state = get_world_3d().direct_space_state
+	var raycast_result = space_state.intersect_ray(PhysicsRayQueryParameters3D.create(self.global_position, self.global_position + Vector3.DOWN))
+	if !raycast_result.is_empty():
 		if !colliding:
 			vehicle_body.position = Vector3(0, 0.1, 0) # Bounce
 			input.z = 0
 		
-		normal = raycast.get_collision_normal()
+		normal = raycast_result["normal"]
 	
 		# Orient model to colliding normal
 		
@@ -65,7 +77,7 @@ func _physics_process(delta):
 			var xform = align_with_y(vehicle_model.global_transform, normal)
 			vehicle_model.global_transform = vehicle_model.global_transform.interpolate_with(xform, 0.2).orthonormalized()
 	
-	colliding = raycast.is_colliding()
+	colliding = !raycast_result.is_empty()
 	
 	var target_speed = input.z
 	
@@ -79,11 +91,6 @@ func _physics_process(delta):
 	
 	acceleration = lerpf(acceleration, linear_speed + (abs(sphere.angular_velocity.length() * linear_speed) / 100), delta * 1)
 	
-	# Match vehicle model to physics sphere
-	
-	vehicle_model.position = sphere.position - Vector3(0, 0.65, 0)
-	raycast.position = sphere.position
-	
 	# Visual and audio effects
 	
 	effect_engine(delta)
@@ -95,10 +102,8 @@ func _physics_process(delta):
 
 func handle_input(delta):
 	
-	if raycast.is_colliding():
-		input.x = Input.get_axis("left", "right")
-		input.z = Input.get_axis("back", "forward")
-	
+	input.x = Input.get_axis("left", "right")
+	input.z = Input.get_axis("back", "forward")
 	sphere.angular_velocity += vehicle_model.get_global_transform().basis.x * (linear_speed * 100) * delta
 
 func effect_body(delta):
