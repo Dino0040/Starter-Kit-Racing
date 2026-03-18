@@ -40,6 +40,16 @@ var colliding: bool
 func _ready():
 	vehicle_model.rotation = self.rotation
 
+@rpc("authority", "call_remote", "unreliable_ordered")
+func interpolate(position: Vector3, velocity: Vector3):
+	sphere.collision_layer = 0
+	sphere.collision_mask = 0
+	sphere.gravity_scale = 0
+	sphere.angular_velocity = Vector3.ZERO
+	var current_position_on_server : Vector3 = position + velocity * Ping.seconds * 0.5
+	var predicted_position_in_second : Vector3 = current_position_on_server + velocity
+	sphere.linear_velocity = predicted_position_in_second - sphere.position
+
 func _physics_process(delta):
 	# Match vehicle model to physics sphere
 	
@@ -52,6 +62,7 @@ func _physics_process(delta):
 	
 	if is_multiplayer_authority():
 		sphere.angular_velocity += vehicle_model.get_global_transform().basis.x * (linear_speed * 100) * delta
+		interpolate.rpc(sphere.position, sphere.linear_velocity)
 	
 	var direction = sign(linear_speed)
 	if direction == 0:
