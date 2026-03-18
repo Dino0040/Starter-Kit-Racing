@@ -1,6 +1,6 @@
 <p align="center"><img src="icon.png"/></p>
 
-# Starter Kit Racing
+# Starter Kit Racing Multiplayer
 
 This package includes a basic template for a racing game in Godot 4.6. Includes features like;
 
@@ -8,6 +8,7 @@ This package includes a basic template for a racing game in Godot 4.6. Includes 
 - Smoke effect
 - GridMap based track creation
 - 3D Models & sounds _(CC0 licensed)_
+- **New: Very simple server-authoritative multiplayer**
 
 ### Screenshot
 
@@ -45,11 +46,19 @@ Follow the same steps as seen above but make sure your model has the following c
 
 - `wheel-back-right` The back right wheel of the vehicle
 
+#### 4. How to test the multiplayer?
+
+The provided lobby script is very basic and only connects to the local host, choosing its role based on args:
+
+<p align="center"><img src="screenshots/instances.png"/></p>
+
 ### License
 
 MIT License
 
 Copyright (c) 2026 Kenney
+
+Copyright (c) 2026 Dino0040
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
