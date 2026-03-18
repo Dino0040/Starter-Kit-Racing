@@ -36,6 +36,10 @@ movie_writer/mjpeg_quality=1.0
 
 import/fbx/enabled=false
 
+[global_group]
+
+players=""
+
 [input]
 
 forward={

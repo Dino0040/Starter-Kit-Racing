@@ -1,5 +1,6 @@
 @tool
 extends RigidBody3D
+class_name Vehicle
 
 # Nodes
 
@@ -49,17 +50,20 @@ func _physics_process(delta):
 		vehicle_model.rotation = self.rotation
 		return
 	
-	handle_input(delta)
+	if is_multiplayer_authority():
+		sphere.angular_velocity += vehicle_model.get_global_transform().basis.x * (linear_speed * 100) * delta
 	
 	var direction = sign(linear_speed)
-	if direction == 0: direction = sign(input.z) if abs(input.z) > 0.1 else 1
+	if direction == 0:
+		direction = sign(input.z) if abs(input.z) > 0.1 else 1
 	
 	var steering_grip = clamp(abs(linear_speed), 0.2, 1.0)
 	
 	var target_angular = -input.x * steering_grip * 4 * direction
 	angular_speed = lerp(angular_speed, target_angular, delta * 4)
 	
-	vehicle_model.rotate_y(angular_speed * delta)
+	if is_multiplayer_authority():
+		vehicle_model.rotate_y(angular_speed * delta)
 
 	# Ground alignment
 	var space_state = get_world_3d().direct_space_state
@@ -97,14 +101,6 @@ func _physics_process(delta):
 	effect_body(delta)
 	effect_wheels(delta)
 	effect_trails()
-
-# Handle input when vehicle is colliding with ground
-
-func handle_input(delta):
-	
-	input.x = Input.get_axis("left", "right")
-	input.z = Input.get_axis("back", "forward")
-	sphere.angular_velocity += vehicle_model.get_global_transform().basis.x * (linear_speed * 100) * delta
 
 func effect_body(delta):
 	

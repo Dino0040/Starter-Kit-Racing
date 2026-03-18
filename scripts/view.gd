@@ -1,14 +1,15 @@
 extends Node3D
 
 @export_group("Properties")
-@export var target: Node
+@export var target: Node3D
 
-@onready var camera = $Camera
+func _ready() -> void:
+	add_to_group("view")
 
-# Functions
+func set_target(new_target : Node3D):
+	target = new_target
 
 func _physics_process(delta):
-	
-	# Set position and rotation to targets
-	
+	if not target:
+		return
 	self.position = self.position.lerp(target.global_position, delta * 4)

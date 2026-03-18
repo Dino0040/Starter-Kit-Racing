@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://c026qrhqxgw3n" path="res://sprites/smoke.png" id="3_vuxys"]
 [ext_resource type="AudioStream" uid="uid://2in1jtv5bh0y" path="res://audio/skid.ogg" id="4_p2hth"]
 [ext_resource type="AudioStream" uid="uid://j6x2is8pyt8y" path="res://audio/engine.ogg" id="5_mcce1"]
+[ext_resource type="Script" uid="uid://b4p73satdfuar" path="res://scripts/player_vehicle_input.gd" id="6_e2g1l"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_eyo0u"]
 friction = 5.0
@@ -56,8 +57,40 @@ alpha_curve = SubResource("CurveTexture_mya1o")
 
 [sub_resource type="QuadMesh" id="QuadMesh_68fxn"]
 
-[node name="Vehicle" type="RigidBody3D" unique_id=255600256 node_paths=PackedStringArray("vehicle_model", "vehicle_body", "wheel_fl", "wheel_fr", "wheel_bl", "wheel_br", "trail_left", "trail_right", "screech_sound", "engine_sound")]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_6gcpt"]
+properties/0/path = NodePath(".:linear_velocity")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:angular_velocity")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:position")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:rotation")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath("PlayerVehicleInput:authority_id")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath("Node/Model:rotation")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+
+[sub_resource type="GDScript" id="GDScript_e2g1l"]
+script/source = "extends MultiplayerSynchronizer
+
+var authority_id : int
+"
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_vuxys"]
+properties/0/path = NodePath(".:input")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="Vehicle" type="RigidBody3D" unique_id=255600256 node_paths=PackedStringArray("vehicle_model", "vehicle_body", "wheel_fl", "wheel_fr", "wheel_bl", "wheel_br", "trail_left", "trail_right", "screech_sound", "engine_sound") groups=["players"]]
 collision_layer = 8
+collision_mask = 9
 mass = 1000.0
 physics_material_override = SubResource("PhysicsMaterial_eyo0u")
 gravity_scale = 1.5
@@ -85,6 +118,7 @@ shape = SubResource("SphereShape3D_hhncp")
 [node name="Node" type="Node" parent="." unique_id=981828492]
 
 [node name="Model" parent="Node" unique_id=1987968262 instance=ExtResource("2_e2g1l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.65, 0)
 
 [node name="TrailLeft" type="GPUParticles3D" parent="Node/Model" unique_id=1388696846]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.05, -0.35)
@@ -113,5 +147,13 @@ autoplay = true
 [node name="EngineSound" type="AudioStreamPlayer3D" parent="Node/Model" unique_id=1579712952]
 stream = ExtResource("5_mcce1")
 autoplay = true
+
+[node name="RigidbodySynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=448525982]
+replication_config = SubResource("SceneReplicationConfig_6gcpt")
+script = SubResource("GDScript_e2g1l")
+
+[node name="PlayerVehicleInput" type="MultiplayerSynchronizer" parent="." unique_id=175605068]
+replication_config = SubResource("SceneReplicationConfig_vuxys")
+script = ExtResource("6_e2g1l")
 
 [editable path="Node/Model"]
